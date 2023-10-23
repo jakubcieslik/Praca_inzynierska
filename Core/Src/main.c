@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "string.h"
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,13 +60,9 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int bit1_whitened=0;
-int bit0_whitened=0;
-int bit1_without_whitening=0;
-int bit0_without_whitening=0;
 
-uint32_t value1=0;
-uint32_t value2=0;
+bool value1=0;
+bool value2=0;
 
 int __io_putchar(int ch)
 {
@@ -80,28 +77,91 @@ int __io_putchar(int ch)
 
 struct BitBuffer {
     uint8_t data[BUFFER_SIZE / 8];
-    uint8_t bitCount;
+    int bitCount;
 };
 struct BitBuffer buffer;
+struct BitBuffer whitened_bits1;
+struct BitBuffer whitened_bits2;
 
+/*void printBinary(struct BitBuffer *data) {
+	for (size_t i = 0; i < BUFFER_SIZE/8; i++) {
+		        uint8_t byte = data->data[i];
+		        int bitsToPrint = (totalBits < 8) ? totalBits : 8;
+		        for (int i = 0; i < bitsToPrint; i++) {
+		        	putchar((byte & (1 << i)) ? '1' : '0');
+		        }
+	}
+}*/
+void printBinary(struct BitBuffer *buff) {
+    int totalBits = buff->bitCount;
+    int byteIndex = 0;
+    int bitIndex = 0;
+
+    while (totalBits > 0) {
+        // Pobieramy aktualny bajt z tablicy data
+        uint8_t currentByte = buff->data[byteIndex];
+
+        // Określamy, ile bitów możemy wypisać z tego bajta
+        int bitsToPrint = (totalBits < 8) ? totalBits : 8;
+
+        // Wypisujemy kolejne bity z aktualnego bajta
+        for (int i = 0; i < bitsToPrint; i++) {
+            int bitValue = (currentByte >> bitIndex) & 1;
+            printf("%d", bitValue);
+            bitIndex++;
+
+            if (bitIndex == 8) {
+                bitIndex = 0;
+                byteIndex++;
+            }
+        }
+        totalBits -= bitsToPrint;
+    }
+}
 void initializeBuffer(struct BitBuffer *buffer) {
     for (int i = 0; i < BUFFER_SIZE / 8; i++) {
-        buffer->data[i] = 0;
+        buffer->data[i] = 0b00000000;
     }
     buffer->bitCount = 0;
 }
 
+void whitening(uint8_t *data, struct BitBuffer *buffer) {
+	 for (size_t i = 0; i < BUFFER_SIZE/8; i++) {
+	        uint8_t originalByte = data[i];
+	        bool bit1 = 0;
+	        bool bit2 = 0;
+	        // Przejście przez każdy bit bajtu i sprawdzenie pary bitów
+	        for (int bitIndex = 0; bitIndex < 8; bitIndex += 2) {
+	            bit1 = (originalByte >> bitIndex) & 1;
+	            bit2 = (originalByte >> (bitIndex + 1)) & 1;
 
-void BufferFullInterruptHandler(void) {
-	uint8_t whitened_bits1[1024]={0};
-	uint8_t whitened_bits2[1024]={0};
-
-	//tworzy dwie nowe puste tablice, do pierwszej dodaje bity wybielone raz,
-	// do drugiej dodaje podwojnie wybielone bity
-    initializeBuffer(&buffer);
+	            if (bit1 != bit2) {
+	                // Jeśli bity są różne, zachowaj pierwszy
+	                addToBuffer(buffer, bit1);
+	            }
+	        }
+	    }
 }
 
-void addToBuffer(struct BitBuffer *buffer, uint8_t bit) {
+void BufferFull(void) {
+
+	whitening(buffer.data, &whitened_bits1);
+	whitening(whitened_bits1.data, &whitened_bits2);
+
+	printBinary(&buffer);
+	printf("stop");
+	printBinary(&whitened_bits1);
+	printf("stop");
+	printBinary(&whitened_bits2);
+	printf("stop\n");
+	//while(1){}//petla nieskonczona dla testow
+
+    initializeBuffer(&buffer);
+    initializeBuffer(&whitened_bits1);
+    initializeBuffer(&whitened_bits2);
+}
+
+void addToBuffer(struct BitBuffer *buffer, bool bit) {
     if (buffer->bitCount < BUFFER_SIZE) {
         int byteIndex = buffer->bitCount / 8;
         int bitIndex = buffer->bitCount % 8;
@@ -111,9 +171,9 @@ void addToBuffer(struct BitBuffer *buffer, uint8_t bit) {
         buffer->bitCount++;
     }
     else{
-    	 //wywolanie przerwania jesli bufor jest pelny
+    	BufferFull();
+    	//wywolanie funkcji bufferfull jesli bufor jest pelny
     }
-
 }
 
 
@@ -162,10 +222,9 @@ int main(void)
   while (1)
   {
 	HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    value1 = HAL_ADC_GetValue(&hadc1);
+    value1 = (HAL_ADC_GetValue(&hadc1)%2);
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    value2 = HAL_ADC_GetValue(&hadc1);
-
+    value2 = (HAL_ADC_GetValue(&hadc1)%2);
     addToBuffer(&buffer, value1);
     addToBuffer(&buffer, value2);
 

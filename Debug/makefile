@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := kurs9
+BUILD_ARTIFACT_NAME := praca_inzynierska
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-kurs9.elf \
+praca_inzynierska.elf \
 
 MAP_FILES += \
-kurs9.map \
+praca_inzynierska.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-kurs9.list \
+praca_inzynierska.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: kurs9.elf secondary-outputs
+main-build: praca_inzynierska.elf secondary-outputs
 
 # Tool invocations
-kurs9.elf kurs9.map: $(OBJS) $(USER_OBJS) C:\Users\User\STM32CubeIDE\workspace_1.12.1\kurs9\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "kurs9.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\User\STM32CubeIDE\workspace_1.12.1\kurs9\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="kurs9.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+praca_inzynierska.elf praca_inzynierska.map: $(OBJS) $(USER_OBJS) C:\Users\User\STM32CubeIDE\workspace_1.12.1\praca_inzynierska\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "praca_inzynierska.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\User\STM32CubeIDE\workspace_1.12.1\praca_inzynierska\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="praca_inzynierska.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-kurs9.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "kurs9.list"
+praca_inzynierska.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "praca_inzynierska.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) default.size.stdout kurs9.elf kurs9.list kurs9.map
+	-$(RM) default.size.stdout praca_inzynierska.elf praca_inzynierska.list praca_inzynierska.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
