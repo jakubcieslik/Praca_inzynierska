@@ -33,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 8192
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -83,15 +83,6 @@ struct BitBuffer buffer;
 struct BitBuffer whitened_bits1;
 struct BitBuffer whitened_bits2;
 
-/*void printBinary(struct BitBuffer *data) {
-	for (size_t i = 0; i < BUFFER_SIZE/8; i++) {
-		        uint8_t byte = data->data[i];
-		        int bitsToPrint = (totalBits < 8) ? totalBits : 8;
-		        for (int i = 0; i < bitsToPrint; i++) {
-		        	putchar((byte & (1 << i)) ? '1' : '0');
-		        }
-	}
-}*/
 void printBinary(struct BitBuffer *buff) {
     int totalBits = buff->bitCount;
     int byteIndex = 0;
@@ -149,11 +140,11 @@ void BufferFull(void) {
 	whitening(whitened_bits1.data, &whitened_bits2);
 
 	printBinary(&buffer);
-	printf("stop");
+	printf("2");
 	printBinary(&whitened_bits1);
-	printf("stop");
+	printf("3");
 	printBinary(&whitened_bits2);
-	printf("stop\n");
+	printf("4");
 	//while(1){}//petla nieskonczona dla testow
 
     initializeBuffer(&buffer);
@@ -222,11 +213,8 @@ int main(void)
   while (1)
   {
 	HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    value1 = (HAL_ADC_GetValue(&hadc1)%2);
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    value2 = (HAL_ADC_GetValue(&hadc1)%2);
+	value1 = (HAL_ADC_GetValue(&hadc1)%2);
     addToBuffer(&buffer, value1);
-    addToBuffer(&buffer, value2);
 
     /* USER CODE END WHILE */
 
