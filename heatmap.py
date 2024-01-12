@@ -17,6 +17,7 @@ def delay_var_method():
         bits = file.read()
         file.seek(0, 2)
         num_of_bytes = file.tell()
+        print(num_of_bytes)
     for _ in range((num_of_bytes // bits_to_analyze) - 1):
         x = int(bits[counter : counter + bits_to_analyze], 2)
         y = int(bits[counter + bits_to_analyze : counter + 2 * bits_to_analyze], 2)
@@ -32,11 +33,12 @@ def delay_var_method():
         bits = file.read()
         file.seek(0, 2)
         num_of_bytes = file.tell()
-    for _ in range(num_of_bytes // (2 * bits_to_analyze)):
+        print(num_of_bytes)
+    for _ in range((num_of_bytes // bits_to_analyze) - 2):
         x = int(bits[counter : counter + bits_to_analyze], 2)
         y = int(bits[counter + bits_to_analyze : counter + 2 * bits_to_analyze], 2)
         add_point(x, y, heatmap_w1)
-        counter = counter + 2 * bits_to_analyze
+        counter = counter + bits_to_analyze
     plt.imshow(heatmap_w1, cmap="hot", interpolation="lanczos")
     plt.colorbar()
     plt.show()
@@ -47,11 +49,12 @@ def delay_var_method():
         bits = file.read()
         file.seek(0, 2)
         num_of_bytes = file.tell()
-    for _ in range(num_of_bytes // (2 * bits_to_analyze)):
+        print(num_of_bytes)
+    for _ in range((num_of_bytes // bits_to_analyze) - 2):
         x = int(bits[counter : counter + bits_to_analyze], 2)
         y = int(bits[counter + bits_to_analyze : counter + 2 * bits_to_analyze], 2)
         add_point(x, y, heatmap_w2)
-        counter = counter + 2 * bits_to_analyze
+        counter = counter + bits_to_analyze
     plt.imshow(heatmap_w2, cmap="hot", interpolation="lanczos")
     plt.colorbar()
     plt.show()
